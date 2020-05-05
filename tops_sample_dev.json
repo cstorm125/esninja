@@ -1,0 +1,420 @@
+#see all index
+GET _cat/indices
+
+#see everything in the index
+GET tops_sample_optimized/_search
+{
+    "query": {
+        "match_all": {}
+    }
+}
+
+#test analyzers
+## standard
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "standard",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "synonym_flt"],
+  "text":      "อะไรก็ได้มันตัดไม่ได้ทั้งนั้นอะ"
+}
+## thai
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "thai",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "synonym_flt"],
+  "text":      "คลิปดำ"
+}
+## ICU
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "icu_tokenizer",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "synonym_flt"],
+  "text":      "หูฟัง"
+}
+
+#analyzer that works in most cases
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "icu_tokenizer",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "snowball_flt",
+               "synonym_flt"],
+  "text":      "eggs"
+}
+
+#sometimes it's impossible without synonyms
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "icu_tokenizer",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "snowball_flt",
+               "synonym_flt"],
+  "text":      "โกชูจัง"
+}
+
+#stemming is not always the best thing to do; there is a brand called "bowling"
+POST tops_sample_optimized/_analyze
+{
+  "tokenizer": "icu_tokenizer",
+  "char_filter": ["html_strip",
+                 "connector_flt",
+                 "numeric_delim_flt"], 
+  "filter":  ["lowercase",
+               "asciifolding",
+               "trim",
+               "decimal_digit",
+               "snowball_flt",
+               "synonym_flt"],
+  "text":      "bowling"
+}
+
+#simple match query; doesn't always work
+GET tops_sample_optimized/_search
+{
+    "query": {
+        "match" : {
+            "name_en": {
+                "query" : "eggs"
+            }
+        }
+    },
+    "_source": ["name_en","class_en"]
+}
+
+#simple match query with explanation
+GET tops_sample_optimized/_search
+{
+    "explain": true, 
+    "query": {
+        "match" : {
+            "name_en": {
+                "query" : "eggs"
+            }
+        }
+    },
+    "_source": ["name_en","class_en"]
+}
+
+#multi-match
+GET tops_sample_optimized/_search
+{
+    "query": {
+      "multi_match": {
+        "query": "eggs",
+        "fields": [
+          "sku^10",
+          "name_en",
+          "name_th",
+          "class_en^5",
+          "class_th^5",
+          "brand_en",
+          "brand_th",
+          "name_en.nostem",
+          "name_th.nostem",
+          "class_en.nostem^5",
+          "class_th.nostem^5",
+          "brand_en.nostem",
+          "brand_th.nostem"
+          ],
+        "type": "most_fields"
+      }
+    },
+    "_source": ["name_en","class_en"]
+}
+
+#multi-match with `and` operator
+GET tops_sample_optimized/_search
+{
+    "query": {
+      "multi_match": {
+        "query": "fresh eggs",
+        "fields": [
+          "sku^10",
+          "name_en",
+          "name_th",
+          "class_en^5",
+          "class_th^5",
+          "brand_en",
+          "brand_th",
+          "name_en.nostem",
+          "name_th.nostem",
+          "class_en.nostem^5",
+          "class_th.nostem^5",
+          "brand_en.nostem",
+          "brand_th.nostem"
+          ],
+        "type": "most_fields",
+        "operator": "and"
+      }
+    },
+    "_source": ["name_en","class_en"]
+}
+
+#multi-match with fuzziness
+GET tops_sample_optimized/_search
+{
+    "query": {
+      "multi_match": {
+        "query": "fresh eggz",
+        "fields": [
+          "sku^10",
+          "name_en",
+          "name_th",
+          "class_en^5",
+          "class_th^5",
+          "brand_en",
+          "brand_th",
+          "name_en.nostem",
+          "name_th.nostem",
+          "class_en.nostem^5",
+          "class_th.nostem^5",
+          "brand_en.nostem",
+          "brand_th.nostem"
+          ],
+        "type": "most_fields",
+        "operator": "and"
+      }
+    },
+    "_source": ["name_en","class_en"]
+}
+GET tops_sample_optimized/_search
+{
+    "query": {
+      "multi_match": {
+        "query": "freshy eggz",
+        "fields": [
+          "sku^10",
+          "name_en",
+          "name_th",
+          "class_en^5",
+          "class_th^5",
+          "brand_en",
+          "brand_th",
+          "name_en.nostem",
+          "name_th.nostem",
+          "class_en.nostem^5",
+          "class_th.nostem^5",
+          "brand_en.nostem",
+          "brand_th.nostem"
+          ],
+        "type": "most_fields",
+        "operator": "and",
+        "fuzziness": "AUTO"
+      }
+    },
+    "_source": ["name_en","class_en"]
+}
+
+#combine fuzzy and no fuzzy together
+GET tops_sample_optimized/_search
+{
+  "min_score":1,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "multi_match": {
+            "query": "fresh eggz",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "boost": 10
+          }
+        },
+        {
+          "multi_match": {
+            "query": "fresh eggz",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "fuzziness": "AUTO",
+            "boost": 5
+          }
+        }
+      ],
+      "must": [],"must_not": [],"filter": []
+    }
+  },
+  "_source": ["name_en","class_en"],
+    "sort": [
+      {
+        "_score": {
+          "order": "desc"
+        }
+      }
+    ]
+}
+
+#put everything together
+GET tops_sample_optimized/_search
+{
+  "min_score":1,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "multi_match": {
+            "query": "eggs",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "boost": 10
+          }
+        },
+        {
+          "multi_match": {
+            "query": "eggs",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "fuzziness": "AUTO",
+            "boost": 5
+          }
+        },
+        {
+          "multi_match": {
+            "query": "eggs",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "boost": 1
+          }
+        },
+        {
+          "multi_match": {
+            "query": "eggs",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "boost": 0.5,
+            "fuzziness": "AUTO"
+          }
+        }
+      ],
+      "must": [],"must_not": [],"filter": []
+    }
+  },
+  "_source": ["name_en","class_en"],
+    "sort": [
+      {
+        "_score": {
+          "order": "desc"
+        }
+      }
+    ]
+}

@@ -1,0 +1,109 @@
+{
+  "min_score":1,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "multi_match": {
+            "query": "xxsearch_term",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "boost": 10
+          }
+        },
+        {
+          "multi_match": {
+            "query": "xxsearch_term",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "operator": "and",
+            "fuzziness": "AUTO",
+            "boost": 5
+          }
+        },
+        {
+          "multi_match": {
+            "query": "xxsearch_term",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "boost": 1
+          }
+        },
+        {
+          "multi_match": {
+            "query": "xxsearch_term",
+            "fields": [
+              "sku^10",
+              "name_en",
+              "name_th",
+              "class_en^5",
+              "class_th^5",
+              "brand_en",
+              "brand_th",
+              "name_en.nostem",
+              "name_th.nostem",
+              "class_en.nostem^5",
+              "class_th.nostem^5",
+              "brand_en.nostem",
+              "brand_th.nostem"
+              ],
+            "type": "most_fields",
+            "boost": 0.5,
+            "fuzziness": "AUTO"
+          }
+        }
+      ],
+      "must": [],"must_not": [],"filter": []
+    }
+  },
+    "sort": [
+      {
+        "_score": {
+          "order": "desc"
+        }
+      }
+    ]
+}

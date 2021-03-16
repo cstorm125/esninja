@@ -35,10 +35,10 @@ logstash -f tops_sample.conf
 
 ## Docker
 
-Still not available to public.
+Run elastic stack with below command.
 
 ```
-docker-compose up -d
+docker-compose up
 ```
 
 ## Miscellaneous Ninja Tools

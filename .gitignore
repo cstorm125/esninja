@@ -1,8 +1,7 @@
 # Byte-compiled / optimized / DLL files
-docker-compose.yml
+#docker-compose.yml
 analysis-cto-7.6.2.zip
-elasticsearch/
-kibana/
+elasticsearch/data/nodes
 .DS_Store
 __pycache__/
 *.py[cod]
